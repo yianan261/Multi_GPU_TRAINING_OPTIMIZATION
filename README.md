@@ -103,22 +103,17 @@ Fused/optimized multi-GPU
 ## Analysis
 The results demonstrate the benefits of multi-GPU parallelism and fused optimizations for logistic
 regression training. As the number
-of GPUs increases from 1 to 5, throughput improves signifi-
-cantly—from 96K samples/sec to over 136K—while GFLOPS
+of GPUs increases from 1 to 5, throughput improves significantly—from 96K samples/sec to over 136K—while GFLOPS
 rises from 4.0 to 5.6, showing better hardware utilization.
 Before single-GPU optimization (at the kernel-level), the time
 was 51.782 s for the computations, and GFLOPS was 4.0.
 After optimization, the speed improved to 50.833 s, GLFOPS
-remaining the same. This optimization still uses the row-
-major layout for simplicity. We notice when we use column-
-major layout optimization, the time increased to 53.972, and
+remaining the same. This optimization still uses the row-major layout for simplicity. We notice when we use column-major layout optimization, the time increased to 53.972, and
 throughput and GFLOPS drop. This could be due to
 packing overhead; we explicitly transpose the input matrix in
 pack_to_cm kernel, which is an extra kernel launch and
 extra global memory write; the benefit from the CM kernels
-does not appear significant. The extra synchronization over-
-head could also cause the delay. On the other hand for multi-
-GPU optimizations, we notice the fused multi-GPU strategy
+does not appear significant. The extra synchronization overhead could also cause the delay. On the other hand for multi-GPU optimizations, we notice the fused multi-GPU strategy
 consistently outperforms naive approaches by approximately
 10% on 3 GPUs, validating the effectiveness of compute-
 communication overlap and fused kernel execution. However we also notice 3-GPU to 5-GPU speedup is only about 1.007x, showing diminishing returns, suggesting the system approaches PCIe or NCCL bottlenecks. By overlapping compute and comm via 3-stream pipelining and fusing kernels, PCIe limitations were migitated but not eliminated. More profiling would help quantify saturation more precisely.
