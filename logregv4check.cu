@@ -1,3 +1,28 @@
+/*%****************************************************************************
+%  Code: 
+%   logregv4check.cu
+%
+%  Purpose:
+%   Optimize kernel-level performance for single-GPU training and scaling
+%   performance with multi-GPUs optimization. This example uses logistic regression
+%   for binary classification training on 8192 features and 1 million sample size.
+%  
+%  Modified:
+%   May 12 2025 
+%
+%  Author:
+%    Yian Chen
+%
+%  How to Compile:
+%   nvcc -o logregv4check logregv4check.cu -lnccl -lcuda -lcudart -Xcompiler "-fopenmp"  
+%
+%  Execute:
+%   ./logregv4check
+%                             
+%  See readme for CLI commands
+%
+%*****************************************************************************/
+
 #include <cuda_runtime.h>
 #include <nccl.h>
 #include <stdio.h>
@@ -122,12 +147,12 @@ int main(int argc, char** argv) {
             mode = "Fused Multi-GPU"; 
             num_gpus = (argc>2)?atoi(argv[2]):3;
             use_opt = true; 
-            use_fused = (NUM_FEATURES > 2048); // Auto-disable fusion for small problems
+            use_fused = (NUM_FEATURES > 2048); // disable for small feature size
         }
     }
     
     bool actually_fused = use_fused && (NUM_FEATURES > 2048);
-    if (actually_fused) use_cm = true; // Use column-major for fused large problems
+    if (actually_fused) use_cm = true; // column-major for fused large problems
     
     printf("\n[Benchmark] %s | %d GPU(s) | Features: %d | Batch: %d\n", 
            mode, num_gpus, NUM_FEATURES, BATCH_SIZE);
