@@ -2,8 +2,7 @@
 ## Introduction
 Training machine learning models efficiently across multiple GPUs is a fundamental challenge in high-performance computing and parallel programming. In this project, we 
 implement an optimized multi-GPU logistic regression training
-system in CUDA. We evaluated and compared different strate
-gies, including single-GPU (baseline and optimized), naive
+system in CUDA. We evaluated and compared different strategies, including single-GPU (baseline and optimized), naive
 multi-GPU, and fused multi-GPU setups. Some optimizations
 include using column-major memory layouts, multi-buffer
 pipelining, and fused compute-communication kernels using
