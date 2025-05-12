@@ -1,18 +1,16 @@
 # Efficient Multi-GPU Gradient Aggregation and Optimization with CUDA Kernels and NCCL
 ## Introduction
-Training machine learning models efficiently across mul-
-tiple GPUs is a fundamental challenge in high-performance
-computing and parallel programming. In this project, we im-
-plement an optimized multi-GPU logistic regression training
-system in CUDA. We evaluated and compared different strate-
+Training machine learning models efficiently across multiple GPUs is a fundamental challenge in high-performance computing and parallel programming. In this project, we 
+implement an optimized multi-GPU logistic regression training
+system in CUDA. We evaluated and compared different strate
 gies, including single-GPU (baseline and optimized), naive
 multi-GPU, and fused multi-GPU setups. Some optimizations
 include using column-major memory layouts, multi-buffer
 pipelining, and fused compute-communication kernels using
 NCCL, inspired by the paper [Optimizing Distributed ML
-Communication with Fused Computation-Collective Opera-
+Communication with Fused Computation-Collective Opera
 tions](https://arxiv.org/abs/2305.06942). Our main goal was to reduce communication-
-computation bottlenecks and scale performance with increas-
+computation bottlenecks and scale performance with increas
 ing GPUs and feature sizes. To achieve efficient multi-
 GPU training, we need to optimize both single and multi-
 GPU inter-device communications. Therefore this project also
@@ -29,12 +27,11 @@ a pipeline, using grouped NCCL AllReduce to help fuse
 AllReduce to a collective communication plan across devices.
 We also explore 3-stream pipeline per GPU to help parallel
 execution of copy, compute, and communication for different
-mini-batches on each GPU (e.g. when batch k is doing NCCL,
-the next is computing, and the next is copying). With 3 buffers
+mini-batches on each GPU. With 3 buffers
 on host and device, we also achieve 3-way ping-pong to
 prevent pipeline stalls. We also use fused gradient scaling for
 the stochastic gradient descent kernel to reduce kernel launch
-overhead and minimize latency between communication
+overhead and minimize latency between communication.
 
 ## Kernels
 `forward_rm(...)` kernel: Baseline forward pass using row-major layout.
