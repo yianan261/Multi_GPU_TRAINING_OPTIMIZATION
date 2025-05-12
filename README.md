@@ -40,15 +40,15 @@ overhead and minimize latency between communication
 `forward_rm(...)` kernel: Baseline forward pass using row-major layout.
 Each row is a sample, columns are features.
 Computes:
-```latex
+
 $$\text{logit}[s] = \sigma\left(\sum_{f=0}^{nf} X[s \cdot nf + f] \cdot W[f]\right)$$
-```
+
 
 `backward_rm(...)` kernel: Each thread handles a different weight index f, this computes
 the gradient w.r.t weights for row-major layout
-```latex
+
 $$g[f] = \frac{1}{\text{batch}} \sum_s (p[s] - y[s]) \cdot X[s \cdot nf + f]$$
-```
+
 
 `forward_cm(...)` kernel: Optimizes forward pass for column-major layout (where features are stored contiguously). Shared memory `ws` loads a tile of weights into shared memory.
 
