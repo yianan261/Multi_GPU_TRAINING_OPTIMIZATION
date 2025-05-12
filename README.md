@@ -41,13 +41,13 @@ overhead and minimize latency between communication
 Each row is a sample, columns are features.
 Computes:
 ```latex
-\text{logit}[s] = \sigma\left(\sum_{f=0}^{nf} X[s \cdot nf + f] \cdot W[f]\right)
+$$\text{logit}[s] = \sigma\left(\sum_{f=0}^{nf} X[s \cdot nf + f] \cdot W[f]\right)$$
 ```
 
 `backward_rm(...)` kernel: Each thread handles a different weight index f, this computes
 the gradient w.r.t weights for row-major layout
 ```latex
-g[f] = \frac{1}{\text{batch}} \sum_s (p[s] - y[s]) \cdot X[s \cdot nf + f]
+$$g[f] = \frac{1}{\text{batch}} \sum_s (p[s] - y[s]) \cdot X[s \cdot nf + f]$$
 ```
 
 `forward_cm(...)` kernel: Optimizes forward pass for column-major layout (where features are stored contiguously). Shared memory `ws` loads a tile of weights into shared memory.
@@ -107,3 +107,26 @@ Fused/optimized multi-GPU
 | 3    | Fused Multi-GPU         | 36.853   | 135,674.73               | 5.6    | 100.00%   |
 | 5    | Fused Multi-GPU         | 36.577   | 136,697.65               | 5.6    | 100.00%   |
 
+## Analysis
+The lab results clearly demonstrate the benefits of multi-
+GPU parallelism and pipeline-aware optimization for logistic
+regression training (see Table 1 for results). As the number
+of GPUs increases from 1 to 5, throughput improves signifi-
+cantly—from 96K samples/sec to over 136K—while GFLOPS
+rises from 4.0 to 5.6, showing better hardware utilization.
+Before single-GPU optimization (at the kernel-level), the time
+was 51.782 s for the computations, and GFLOPS was 4.0.
+After optimization, the speed improved to 50.833 s, GLFOPS
+remaining the same. This optimization still uses the row-
+major layout for simplicity. We notice when we use column-
+major layout optimization, the time increased to 53.972, and
+throughput and GFLOPS drop. This could be because of
+packing overhead; we explicitly transpose the input matrix in
+pack_to_cm kernel, which is an extra kernel launch and
+extra global memory write; the benefit from the CM kernels
+does not appear significant. The extra synchronization over-
+head could also cause the delay. On the other hand for multi-
+GPU optimizations, we notice the fused multi-GPU strategy
+consistently outperforms naive approaches by approximately
+10% on 3 GPUs, validating the effectiveness of compute-
+communication overlap and fused kernel execution. 
