@@ -45,13 +45,25 @@ $$g[f] = \frac{1}{\text{batch}} \sum_s (p[s] - y[s]) \cdot X[s \cdot nf + f]$$
 
 `forward_cm(...)` kernel: Optimizes forward pass for column-major layout (where features are stored contiguously). Shared memory `ws` loads a tile of weights into shared memory.
 
+$$\text{logit}[s] = \sigma\left( \sum_{f=0}^{nf-1} X[f \cdot batch + s] \cdot W[f] \right)$$
+
+where X is column-major.
+
 `backward_cm(...)` kernel: Computes one weight gradient using stride-based access.
+
+$$g[f] = \frac{1}{\text{batch}} \sum_{s=0}^{\text{batch}-1} (p[s] - y[s]) \cdot X[f \cdot \text{batch} + s]$$
+
+Uses shared memory for $p[s]-y[s]$ to avoid recomputing and minimize global memory reads.
 
 #### Utility Kernels:
 
-`scale_kernel(...)` scales gradient by scalar.
-`sgd_kernel(...)` stochastic gradient descent 
-`scale_and_sgd_kernel(...)` combines scale + SGD in a single kernel to reduce launch overhead and memory bandwidth
+`scale_kernel(...)` scales gradient by scalar $g[i]*s$
+
+`sgd_kernel(...)` stochastic gradient descent $w[i] = w[i] - \eta \cdot g[i]$
+
+`scale_and_sgd_kernel(...)` combines scale + SGD in a single kernel to reduce launch overhead and memory bandwidth 
+
+$$w[i] = w[i] - \eta \cdot (g[i] \cdot s)$$
 
 
 ## Hardware:
