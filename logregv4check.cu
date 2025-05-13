@@ -31,7 +31,7 @@
 #include <string.h>
 #include <omp.h>
 
-#define MAX_GPUS      8
+#define MAX_GPUS      5
 #define NUM_FEATURES  8192    
 #define NUM_SAMPLES   1000000
 #define BATCH_SIZE    8192    
